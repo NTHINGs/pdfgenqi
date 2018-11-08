@@ -42,11 +42,12 @@
     }
     
     function imprimir(obj, template) {
+        var template_name = template;
         get('/template/' + template)
             .then(function (template) {
                 let doc = new jsPDF()
                 doc.fromHTML(template.supplant(obj), 10, 10);
-                doc.save('a4.pdf');
+                doc.save(template_name);
             });
     }
     document.addEventListener("DOMContentLoaded", function(event) { 
