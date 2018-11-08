@@ -2,11 +2,18 @@
 #obj {
     width: 100%;
 }
+
+#editor {
+    height: 500px;
+}
 </style>
 <script src="/scripts/jspdf/dist/jspdf.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/ace.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/ace/1.4.1/mode-json.js"></script>
 <h1>Generar pdf</h1>
 
-<textarea name="obj" id="obj" cols="30" rows="10"></textarea>
+<!-- <textarea name="obj" id="obj" cols="30" rows="10"></textarea> -->
+<div id="editor">{}</div>
 <label for="plantilla">Plantilla:</label>
 <select name="plantilla" id="plantilla"></select>
 <button type="button" id="imprimir">Generar PDF</button>
@@ -43,6 +50,11 @@
             });
     }
     document.addEventListener("DOMContentLoaded", function(event) { 
+        // pass options to ace.edit
+        var editor = ace.edit(document.getElementById('editor'), {
+            mode: "ace/mode/json",
+            selectionStyle: "text"
+        })
         //Traer plantillas disponibles
         get('/templates')
             .then(function (response) {
@@ -57,7 +69,7 @@
             });
         // Evento de click del boton
         document.getElementById('imprimir').addEventListener('click', function(e) {
-            var obj = JSON.parse(document.getElementById('obj').value);
+            var obj = JSON.parse(editor.getValue());
             var template = document.getElementById('plantilla').value;
             imprimir(obj, template);
         }, false);
