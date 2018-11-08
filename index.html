@@ -47,7 +47,7 @@
             .then(function (template) {
                 let doc = new jsPDF()
                 doc.fromHTML(template.supplant(obj), 10, 10);
-                doc.save(template_name);
+                doc.save(template_name.substr(0, template_name.indexOf('.')));
             });
     }
     document.addEventListener("DOMContentLoaded", function(event) { 
