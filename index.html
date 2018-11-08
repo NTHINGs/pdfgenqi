@@ -1,0 +1,67 @@
+<style>
+#obj {
+    width: 100%;
+}
+</style>
+<script src="/scripts/jspdf/dist/jspdf.min.js"></script>
+<h1>Generar pdf</h1>
+
+<textarea name="obj" id="obj" cols="30" rows="10"></textarea>
+<label for="plantilla">Plantilla:</label>
+<select name="plantilla" id="plantilla"></select>
+<button type="button" id="imprimir">Generar PDF</button>
+<script>
+    String.prototype.supplant = function (o) {
+        return this.replace(/{([^{}]*)}/g,
+            function (a, b) {
+                var r = o[b];
+                return typeof r === 'string' || typeof r === 'number' ? r : a;
+            }
+        );
+    };
+    function get(url) {
+        return new Promise(function (resolve, reject) {
+            var request = new XMLHttpRequest();
+            request.open("GET", url, false);
+            request.onreadystatechange = function () {
+                if (request.readyState === 4) {
+                    if (request.status === 200 || request.status == 0) {
+                        resolve(request.responseText);
+                    }
+                }
+            }
+            request.send(null);
+        });
+    }
+    
+    function imprimir(obj, template) {
+        get('/template/' + template)
+            .then(function (template) {
+                let doc = new jsPDF()
+                doc.fromHTML(template.supplant(obj), 10, 10);
+                doc.save('a4.pdf');
+            });
+    }
+    document.addEventListener("DOMContentLoaded", function(event) { 
+        //Traer plantillas disponibles
+        get('/templates')
+            .then(function (response) {
+                var templates = JSON.parse(response);
+                var select = document.getElementById('plantilla');
+                for (var template of templates) {
+                    var option = document.createElement('option');
+                    option.innerHTML = template;
+                    select.appendChild(option);
+                }
+                
+            });
+        // Evento de click del boton
+        document.getElementById('imprimir').addEventListener('click', function(e) {
+            var obj = JSON.parse(document.getElementById('obj').value);
+            var template = document.getElementById('plantilla').value;
+            imprimir(obj, template);
+        }, false);
+    });
+
+
+</script>
